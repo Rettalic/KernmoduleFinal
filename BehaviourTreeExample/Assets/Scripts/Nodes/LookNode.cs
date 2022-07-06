@@ -5,16 +5,19 @@ using UnityEngine;
 public class LookNode : BTBaseNode
 {
     FieldOfView fov;
-    
-    public LookNode(GameObject _gameObject, LayerMask _targetMask, LayerMask _obstructionMask, float _radius, float _angle)
+    private BlackBoard blackBoard;
+     
+    public LookNode(GameObject _gameObject, LayerMask _targetMask, LayerMask _obstructionMask, float _radius, float _angle, BlackBoard _blackBoard)
     {
         fov = new FieldOfView(_gameObject, _targetMask, _obstructionMask, _radius, _angle);
+        blackBoard = _blackBoard;
     }
 
     public override void OnEnter(){}
 
     public override TaskStatus Run()
     {
+        
         fov.Update();
         if (fov.canSeeTarget)
         {

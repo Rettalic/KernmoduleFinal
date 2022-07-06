@@ -1,28 +1,31 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class CheckDistanceNode : BTBaseNode
 {
-    private NavMeshAgent agent;
+    private Transform agentTransform;
+    private GameObject theObject;
     private float distance;
 
-    public CheckDistanceNode(NavMeshAgent agent, float distance)
+    public CheckDistanceNode(Transform _agentTransform, GameObject _theObject, float _distance)
     {
-        this.agent = agent;
-        this.distance = distance;
+        agentTransform = _agentTransform;
+        theObject      = _theObject;
+        distance       = _distance;
+    }
+
+    public override void OnEnter()
+    {
 
     }
-    public override void OnEnter(){}
 
     public override TaskStatus Run()
     {
-       if (agent.remainingDistance < distance && !agent.pathPending)  
+        if(Vector3.Distance(agentTransform.position, theObject.transform.position) <= distance)
         {
             return TaskStatus.Success;
         }
-
-        return TaskStatus.Running;
+        return TaskStatus.Failed;
     }
 }

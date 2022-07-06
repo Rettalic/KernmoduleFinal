@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.AI;
+using System.Linq;
 
 public class Rogue : MonoBehaviour
 {
@@ -13,13 +14,16 @@ public class Rogue : MonoBehaviour
     [SerializeField] GameObject player;
     [SerializeField] Player playerScript;
 
-    private bool isDamaged;
-
-    [SerializeField] private Cover[] avaliableCovers;
+    [SerializeField] private Transform[] availableCovers;
     private Transform bestCoverSpot;
     private Rogue rogueScript;
 
     [SerializeField] private GameObject enemy;
+
+    [SerializeField] BlackBoard blackBoard;
+    [SerializeField] Guard guard;
+
+    [SerializeField] GameObject grenade;
 
     private void Awake()
     {
@@ -29,12 +33,13 @@ public class Rogue : MonoBehaviour
 
     private void Start()
     {
+        blackBoard = guard.blackBoard;
         LayerMask targetMask = LayerMask.GetMask("player");
         LayerMask obstructionMask = LayerMask.GetMask("obstruction");
         float radius = 100f;
         float angle = 130;
 
-        var lookForPlayerNode = new LookNode(gameObject, targetMask, obstructionMask, radius, angle);
+       // var lookForPlayerNode = new LookNode(gameObject, targetMask, obstructionMask, radius, angle, blackBoard);
 
         var followPlayerSequence = new Sequence(
             new DebugNode("Follow"),
@@ -42,20 +47,19 @@ public class Rogue : MonoBehaviour
             );
 
         var smokeBombSequence = new Sequence(
-            new DebugNode("Smoke"),
-            new IsCoverAvailableNode(avaliableCovers, enemy.transform, this),
-            new DebugNode(" raaa"),
-            new GoToCoverNode(rogue, this),
-            new DebugNode("EEEEEEEEEEEEEEEEE"),
-            new IsCoveredNode(enemy.transform, transform)
-            );
+            new GetFurthestPositionNode(rogue.transform.position, availableCovers.Select(point => point.position).ToArray(), blackBoard, "furthest"),
+            new MoveToBlackboardNode(blackBoard, rogue, 0.5f, "furthest"),
+            new ThrowGrenadeNode(player.transform, guard.transform, grenade, blackBoard),
+            new SetBoolNode(blackBoard, "isShooting", false),
+            new SetBoolNode(blackBoard, "hasBombed",  true)
+            ) ;
 
    
 
-        tree = new SwitchNode(                              //Node that switches between patrolling and chasing + getting gun + shooting player
-               new PlayerDamagedNode(playerScript, isDamaged),
-               smokeBombSequence,
-               followPlayerSequence
+        tree = new IfElseNode(                            //Statement
+               new GetBoolNode(blackBoard, "isShooting"),
+               smokeBombSequence,                         //if true
+               followPlayerSequence                       //if false
                );
     }
 

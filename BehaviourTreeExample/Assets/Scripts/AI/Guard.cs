@@ -15,49 +15,87 @@ public class Guard : MonoBehaviour
     [SerializeField] GameObject weapon;
     [SerializeField] private Transform[] target;
     [SerializeField] float distance;
+
+    [SerializeField] ParticleSystem particleSystem;
+
+    [SerializeField] AudioSource aSource;
+    [SerializeField] AudioClip clip;
     private bool isPickedUp;
+    public BlackBoard blackBoard;
+
+    [SerializeField] UINPC UInpc;
+    [SerializeField] eText eText;
+    
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
+        blackBoard = new BlackBoard();
+        blackBoard.SetValue("hasWeapon", false);
     }
 
     private void Start()
     {
-        LayerMask targetMask = LayerMask.GetMask("player");
-        LayerMask obstructionMask = LayerMask.GetMask("obstruction");
+        LayerMask targetMask       = LayerMask.GetMask("player");
+        LayerMask obstructionMask  = LayerMask.GetMask("obstruction");
+
         float radius = 100f;
         float angle = 130;
 
-        var patrolSequence = new Sequence(                                                           
-                new MoveToNode(agent, target[0]),
-                new CheckDistanceNode(agent, 0.2f),
-                new WaitNode(Random.Range(1f, 2f)),
-                new MoveToNode(agent, target[1]),
-                new CheckDistanceNode(agent, 0.2f),
-                new WaitNode(Random.Range(1f, 2f)),
-                new MoveToNode(agent, target[2]),
-                new CheckDistanceNode(agent, 0.2f),
-                new WaitNode(Random.Range(1f, 2f)),
-                new MoveToNode(agent, target[3]),
-                new CheckDistanceNode(agent, 0.2f),
-                new WaitNode(Random.Range(1f, 2f))
+        var patrolSequence = new Sequence(      
+                new DebugNode("PATROL"),
+                new SetBoolNode(blackBoard, "hasBombed", false),
+                new MoveToNode(agent, target[0], 0.4f),
+                new WaitNode(Random.Range(0.5f, 1f)),
+                new SetBoolNode(blackBoard, "hasBombed", false),
+                new MoveToNode(agent, target[1], 0.4f),
+                new WaitNode(Random.Range(0.5f, 1f)),
+                new SetBoolNode(blackBoard, "hasBombed", false),
+                new MoveToNode(agent, target[2], 0.4f),
+                new WaitNode(Random.Range(0.5f, 1f)),
+                new SetBoolNode(blackBoard, "hasBombed", false),
+                new MoveToNode(agent, target[3], 0.4f),
+                new WaitNode(Random.Range(0.5f, 1f))
                 );
 
-        var shootPlayerSequence = new Sequence(                                                      
-                new GetGunNode(weapon, agent, isPickedUp),
-                new ChasePlayerNode(agent, player.transform),
-                new AttackPlayerNode(agent, this, player.transform, targetMask, 1f, player, distance),
-                new ChasePlayerNode(agent, player.transform)
-                );
+        var shootPlayerSequence = new Sequence(
+                new DebugNode("SHOOT"),
+                new IfElseNode(
+                  new GetBoolNode(blackBoard, "hasWeapon"),                //statement
+                  new Sequence(                                            //if true
+                    new DebugNode("true"),
+                    new ChasePlayerNode(agent, player.transform),
+                    new PlaySoundNode(aSource, clip),
+                    new PlayEffectNode(particleSystem),
+                    new AttackPlayerNode(agent, this, player.transform, targetMask, 2f, player, distance),
+                    new SetBoolNode(blackBoard, "isPickingUp", false),
+                    new SetBoolNode(blackBoard, "isShooting", true),
+                    new WaitNode(0.3f)
+                    ),
+                new Sequence(                                              //if false
+                    new DebugNode("false"),
+                    new SetBoolNode(blackBoard, "isPickingUp", true),
+                    new MoveToObjectNode(weapon, agent),
+                    new GetGunNode(weapon, agent, isPickedUp),
+                    new SetBoolNode(blackBoard, "hasWeapon",   true)
+                    )
+                )
+            );
 
-        var lookForPlayerNode = new LookNode(gameObject, targetMask, obstructionMask, radius, angle);
+        Selector lookForPlayerNode = new Selector(
+            new LookNode(gameObject, targetMask, obstructionMask, radius, angle, blackBoard),
+            new GetBoolNode(blackBoard, "isPickingUp")
+            );
 
-        tree = new SwitchNode(              //Node that switches between patrolling and chasing + getting gun + shooting player
-               lookForPlayerNode,             
-               shootPlayerSequence,                                                 
-               patrolSequence                                                               
+        tree = new IfElseNode(              //Node that switches between patrolling and chasing + getting gun + shooting player
+               lookForPlayerNode, 
+                   new IfElseNode(                                      //true
+                       new GetBoolNode(blackBoard, "hasBombed"),            //state
+                       patrolSequence,                                     //true
+                       shootPlayerSequence                                   //false
+                       ),
+                   patrolSequence                                       //false                                              
                );                                                                      
     }
 

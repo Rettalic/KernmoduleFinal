@@ -7,7 +7,7 @@ public class ChasePlayerNode : BTBaseNode
 {
     private Transform target;
     private NavMeshAgent agent;
-    private bool debugBool;
+    private bool debugBool = false;
 
 
     public ChasePlayerNode(NavMeshAgent _agent, Transform _target)
@@ -32,7 +32,7 @@ public class ChasePlayerNode : BTBaseNode
         if (debugBool)
         {
 
-            Debug.Log(distance);
+            //Debug.Log(distance);
         }
         
         

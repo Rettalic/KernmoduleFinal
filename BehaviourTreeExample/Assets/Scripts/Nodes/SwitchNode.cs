@@ -22,6 +22,7 @@ public class SwitchNode : BTBaseNode
         if (checkNode.Run() == TaskStatus.Success)
         {
             successNode.Run();
+
         }
 
         failedNode.Run();
