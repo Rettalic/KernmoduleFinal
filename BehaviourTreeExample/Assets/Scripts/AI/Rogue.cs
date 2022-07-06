@@ -51,7 +51,8 @@ public class Rogue : MonoBehaviour
             new MoveToBlackboardNode(blackBoard, rogue, 0.5f, "furthest"),
             new ThrowGrenadeNode(player.transform, guard.transform, grenade, blackBoard),
             new SetBoolNode(blackBoard, "isShooting", false),
-            new SetBoolNode(blackBoard, "hasBombed",  true)
+            new SetBoolNode(blackBoard, "hasBombed",  true),
+            new DelayNode(blackBoard, 2f, "hasBombed", false)
             ) ;
 
    
