@@ -45,18 +45,10 @@ public class Guard : MonoBehaviour
 
         var patrolSequence = new Sequence(      
                 new DebugNode("PATROL"),
-                new SetBoolNode(blackBoard, "hasBombed", false),
                 new MoveToNode(agent, target[0], 0.4f),
-                new WaitNode(Random.Range(0.5f, 1f)),
-                new SetBoolNode(blackBoard, "hasBombed", false),
                 new MoveToNode(agent, target[1], 0.4f),
-                new WaitNode(Random.Range(0.5f, 1f)),
-                new SetBoolNode(blackBoard, "hasBombed", false),
                 new MoveToNode(agent, target[2], 0.4f),
-                new WaitNode(Random.Range(0.5f, 1f)),
-                new SetBoolNode(blackBoard, "hasBombed", false),
-                new MoveToNode(agent, target[3], 0.4f),
-                new WaitNode(Random.Range(0.5f, 1f))
+                new MoveToNode(agent, target[3], 0.4f)
                 );
 
         var shootPlayerSequence = new Sequence(
