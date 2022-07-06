@@ -80,15 +80,19 @@ public class Guard : MonoBehaviour
             new GetBoolNode(blackBoard, "isPickingUp")
             );
 
-        tree = new IfElseNode(              //Node that switches between patrolling and chasing + getting gun + shooting player
-               lookForPlayerNode, 
+        tree = new ParalellNode(
+                new IfElseNode(              
+                   lookForPlayerNode,                                    //statement
                    new IfElseNode(                                      //true
                        new GetBoolNode(blackBoard, "hasBombed"),            //state
                        patrolSequence,                                     //true
                        shootPlayerSequence                                   //false
                        ),
                    patrolSequence                                       //false                                              
-               );                                                                      
+               ),
+            new DelayNode(blackBoard, 6f, "hasBombed", false)
+ 
+        );                                                                      
     }
 
     private void FixedUpdate()

@@ -6,7 +6,7 @@ public class ParalellNode : BTBaseNode
 {
     private BTBaseNode[] nodesToEx;
 
-    public ParalellNode(BTBaseNode[] _nodesToEx)
+    public ParalellNode(params BTBaseNode[] _nodesToEx)
     {
         nodesToEx = _nodesToEx;
     }

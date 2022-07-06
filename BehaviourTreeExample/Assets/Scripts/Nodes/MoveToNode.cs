@@ -22,7 +22,8 @@ public class MoveToNode : BTBaseNode
     public override TaskStatus Run()
     {
         if (agent.remainingDistance < distance && !agent.pathPending)
-        {   
+        {
+            agent.isStopped = false;
             agent.SetDestination(target.position);
             return TaskStatus.Success;
         }
