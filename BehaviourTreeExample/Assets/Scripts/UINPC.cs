@@ -4,40 +4,33 @@ using UnityEngine;
 using TMPro;
 
 
-public enum eText
+public enum eUI
 {
     Patrolling   = 0,
-    Noticing     = 1,
-    Attack       = 2,
-    Following    = 3,
-    RunningAway  = 4 ,
-    ThrowingGrenade = 5
+    Attack       = 1,
+    Following    = 2,
+    Searching    = 3 
+
 }
 public class UINPC : MonoBehaviour
 {
     public TMP_Text text;
 
-    public void UpdateText(eText eText)
+    public void UpdateText(eUI eUI)
     {
-        switch (eText)
+        switch (eUI)
         {
-            case eText.Noticing:
-                text.text = "?";
+            case eUI.Patrolling:
+                text.text = "Just Patrolling around";
                 break;
-            case eText.Patrolling:
-                text.text = "0";
+            case eUI.Attack:
+                text.text = "I GOT YOU, RUFFIAN!";
                 break;
-            case eText.Attack:
-                text.text = "!";
+            case eUI.Following:
+                text.text = "I am coming for you!";
                 break;
-            case eText.Following:
-                text.text = ":)";
-                break;
-            case eText.RunningAway:
-                text.text = ":O";
-                break;
-            case eText.ThrowingGrenade:
-                text.text = ">:)";
+            case eUI.Searching:
+                text.text = "Let me get a weapon!";
                 break;
         }
     }

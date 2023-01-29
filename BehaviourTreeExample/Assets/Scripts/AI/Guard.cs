@@ -24,7 +24,7 @@ public class Guard : MonoBehaviour
     public BlackBoard blackBoard;
 
     [SerializeField] UINPC UInpc;
-    [SerializeField] eText eText;
+    [SerializeField] eUI eUI;
     
 
     private void Awake()
@@ -45,6 +45,7 @@ public class Guard : MonoBehaviour
 
         var patrolSequence = new Sequence(      
                 new DebugNode("PATROL"),
+                new UpdateUINode(UInpc, eUI.Patrolling),
                 new MoveToNode(agent, target[0], 0.4f),
                 new MoveToNode(agent, target[1], 0.4f),
                 new MoveToNode(agent, target[2], 0.4f),
@@ -56,16 +57,19 @@ public class Guard : MonoBehaviour
                 new IfElseNode(
                   new GetBoolNode(blackBoard, "hasWeapon"),                //statement
                   new Sequence(                                            //if true
+                    new UpdateUINode(UInpc, eUI.Following),
                     new DebugNode("true"),
                     new ChasePlayerNode(agent, player.transform),
                     new PlaySoundNode(aSource, clip),
                     new PlayEffectNode(particleSystem),
+                     new UpdateUINode(UInpc, eUI.Attack),
                     new AttackPlayerNode(agent, this, player.transform, targetMask, 2f, player, distance),
                     new SetBoolNode(blackBoard, "isPickingUp", false),
                     new SetBoolNode(blackBoard, "isShooting", true),
                     new WaitNode(0.3f)
                     ),
                 new Sequence(                                              //if false
+                    new UpdateUINode(UInpc, eUI.Searching),
                     new DebugNode("false"),
                     new SetBoolNode(blackBoard, "isPickingUp", true),
                     new MoveToObjectNode(weapon, agent),
@@ -98,6 +102,5 @@ public class Guard : MonoBehaviour
     private void FixedUpdate()
     {
         tree?.Run();
-
     }
 }
